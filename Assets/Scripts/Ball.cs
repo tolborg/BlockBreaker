@@ -3,17 +3,18 @@ using System.Collections;
 
 public class Ball : MonoBehaviour {
 	
-	public Paddle paddle;
-	private Vector3 paddleToBallVector;
+	private Paddle paddle;
 	private Rigidbody2D rigi;
+	private AudioSource audi;
+	private Vector3 paddleToBallVector;
 	private bool hasStarted = false;
-
-	void Awake() {
-		rigi = GetComponent<Rigidbody2D>();
-	}
 
 
 	void Start() {
+		paddle = FindObjectOfType<Paddle>();
+		rigi = GetComponent<Rigidbody2D>();
+		audi = GetComponent<AudioSource>();
+
 		paddleToBallVector = this.transform.position - paddle.transform.position;
 	}
 
@@ -24,12 +25,21 @@ public class Ball : MonoBehaviour {
 			// Lock the ball.
 			this.transform.position = paddle.transform.position + paddleToBallVector;
 
-			// Handle launch of ball.
+			// Unlock ball and launch it.
 			if (Input.GetMouseButtonDown(0)) {
-				print("Mouse clicked!");
 				hasStarted = true;
-				rigi.velocity = new Vector2(2f, 10f);
+				rigi.velocity = new Vector2(1f, 10f);
 			}
+		}
+	}
+
+
+	void OnCollisionEnter2D(Collision2D collision) {
+		Vector2 tweak = new Vector2(Random.Range(0f, 0.2f), Random.Range(0f, 0.2f));
+
+		if (hasStarted) {
+			audi.Play();
+			rigi.velocity += tweak;
 		}
 	}
 
